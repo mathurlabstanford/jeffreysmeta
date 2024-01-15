@@ -35,11 +35,10 @@
 #'
 #' @examples
 #' \donttest{
-#' # passing all studies, though only nonaffirmative ones will be analyzed
-#' money_priming_rtma <- phacking_meta(money_priming_meta$yi, money_priming_meta$vi,
+#' money_priming <- jeffreys_meta(money_priming_meta$yi, money_priming_meta$vi,
 #'                                     parallelize = FALSE)
 #' }
-phacking_meta <- function(yi, # data
+jeffreys_meta <- function(yi, # data
                           vi,
                           sei,
 
@@ -67,7 +66,7 @@ phacking_meta <- function(yi, # data
                k = k)
 
   if (parallelize) options(mc.cores = parallel::detectCores())
-  stan_fit <- rstan::sampling(stanmodels$phacking_rtma,
+  stan_fit <- rstan::sampling(stanmodels$jeffreys_meta,
                               data = stan_data,
                               control = stan_control,
                               init = function() list(mu = 0, tau = 1))
@@ -78,7 +77,7 @@ phacking_meta <- function(yi, # data
   index_maxlp <- which.max(stan_extract$log_post)
   mu_maxlp <- stan_extract$mu[index_maxlp]
   tau_maxlp <- stan_extract$tau[index_maxlp]
-  mle_fit <- mle_params(mu_maxlp, tau_maxlp, nonaffirm$yi, nonaffirm$sei, tcrit)
+  mle_fit <- mle_params(mu_maxlp, tau_maxlp, yi, sei)
   modes <- c(mle_fit@coef[["mu"]], mle_fit@coef[["tau"]])
   optim_converged <- mle_fit@details$convergence == 0
   vals$optim_converged <- optim_converged
