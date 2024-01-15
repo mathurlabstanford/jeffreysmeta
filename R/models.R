@@ -43,8 +43,6 @@ phacking_meta <- function(yi, # data
                           vi,
                           sei,
 
-                          favor_positive = TRUE, # opts
-                          alpha_select = 0.05,
                           ci_level = 0.95,
                           stan_control = list(adapt_delta = 0.98,
                                               max_treedepth = 20),
@@ -58,34 +56,15 @@ phacking_meta <- function(yi, # data
   )
   if (any(sei < 0)) stop("vi or sei should never be negative.")
 
-  # warn if naive estimate is in opposite direction than favor_positive
-  naive_pos <- as.logical(metafor::rma(yi, vi, method = "FE")$beta > 0)
-  if (naive_pos != favor_positive)
-    warning("Favored direction is opposite of the pooled estimate.")
-
-  # flip direction of yi if needed
-  if (!favor_positive) yi <- -yi
-
   k <- length(yi)
-  tcrit <- qnorm(1 - alpha_select / 2)
-  affirm <- (yi / sei) > tcrit
-  k_nonaffirm <- sum(!affirm)
-  if (k_nonaffirm == 0) stop(
-    "Dataset must contain at least one nonaffirmative study to fit RTMA."
-  )
 
-  dat <- tibble(yi = yi, vi = vi, sei = sei, affirm = affirm)
-  nonaffirm <- dat |> filter(!affirm)
-  stan_data <- list(y = array(nonaffirm$yi), sei = array(nonaffirm$sei),
-                    k = k_nonaffirm, tcrit = array(rep(tcrit, k_nonaffirm)))
+  dat <- tibble(yi = yi, vi = vi, sei = sei)
+ 
+  stan_data <- list(y = array(yi), sei = array(sei),
+                    k = k)
 
-  vals <- list(favor_positive = favor_positive,
-               alpha_select = alpha_select,
-               ci_level = ci_level,
-               tcrit = tcrit,
-               k = k,
-               k_affirmative = k - k_nonaffirm,
-               k_nonaffirmative = k_nonaffirm)
+  vals <- list(ci_level = ci_level,
+               k = k)
 
   if (parallelize) options(mc.cores = parallel::detectCores())
   stan_fit <- rstan::sampling(stanmodels$phacking_rtma,
