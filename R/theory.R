@@ -1,5 +1,5 @@
 #' @keywords internal
-get_lprior <- function(mu, tau, sei) {
+get_lprior <- function(tau, sei) {
   e_fisher_i <- function(se) {
     si <- sqrt(tau ^ 2 + se ^ 2)
 
@@ -23,7 +23,7 @@ get_nll <- function(mu, tau, yi, sei) {
 #' @keywords internal
 nlpost <- function(mu, tau, yi, sei) {
   joint_nll <- get_nll(mu, tau, yi, sei) # negative log-likelihood
-  joint_lprior <- get_lprior(mu, tau, sei) # log-prior
+  joint_lprior <- get_lprior(tau, sei) # log-prior
   joint_nll - joint_lprior # log-posterior
 }
 
