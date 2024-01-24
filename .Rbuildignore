@@ -1,2 +1,14 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^renv$
+^renv\.lock$
+^LICENSE\.md$
+^\.github$
+cran-comments.md
+^CRAN-SUBMISSION$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^RELEASE\.R$
+^check\.sh$
+^_tmp$

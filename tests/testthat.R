@@ -1,4 +1,4 @@
 library(testthat)
-library(phacking)
+library(jeffreysmeta)
 
-test_check("phacking")
+test_check("jeffreysmeta")
